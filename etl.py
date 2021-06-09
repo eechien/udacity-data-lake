@@ -73,6 +73,7 @@ def create_song_table(df, output_data):
     files on the S3 output bucket, partitioned by year and artist.
     """
     songs_table = df["song_id", "title", "artist_id", "year", "duration"]
+    songs_table = songs_table.dropDuplicates()
     songs_table.write.parquet(
         f"{output_data}song",
         mode="overwrite",
@@ -95,7 +96,8 @@ def create_artist_table(df, output_data):
     artists_table = artists_table.withColumnRenamed("artist_name", "name")\
         .withColumnRenamed("artist_location", "location")\
         .withColumnRenamed("artist_latitude", "latitude")\
-        .withColumnRenamed("artist_longitude", "longitude")
+        .withColumnRenamed("artist_longitude", "longitude")\
+        .dropDuplicates()
     artists_table.write.parquet(f"{output_data}artist", mode="overwrite")
     
     
@@ -122,7 +124,8 @@ def create_user_table(df, output_data):
     ].distinct()
     users_table = users_table.withColumnRenamed("userId", "user_id")\
         .withColumnRenamed("firstName", "first_name")\
-        .withColumnRenamed("lastName", "last_name")
+        .withColumnRenamed("lastName", "last_name")\
+        .dropDuplicates()
     users_table.write.parquet(f"{output_data}user", mode="overwrite")
 
 
@@ -140,13 +143,14 @@ def create_time_table(df, output_data):
         month("start_time"),
         year("start_time"),
         dayofweek("start_time"),
-    ].distinct()
+    ]
     time_table = time_table.withColumnRenamed("hour(start_time)", "hour")\
         .withColumnRenamed("dayofmonth(start_time)", "day")\
         .withColumnRenamed("weekofyear(start_time)", "week")\
         .withColumnRenamed("month(start_time)", "month")\
         .withColumnRenamed("year(start_time)", "year")\
-        .withColumnRenamed("dayofweek(start_time)", "weekday")
+        .withColumnRenamed("dayofweek(start_time)", "weekday")\
+        .dropDuplicates()
     time_table.write.parquet(
         f"{output_data}time",
         mode="overwrite",
